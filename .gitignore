@@ -1,0 +1,41 @@
+# Python
+*.py[cod]
+__pycache__/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+*.egg
+*.log
+
+# IDE/编辑器
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# 工程依赖
+/.venv
+/.env
+
+# 测试相关
+htmlcov/
+.coverage
+.tox/
+.noseids
+nosetests.xml
+coverage.xml
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# 其他
+*.bak
+*.swp
+*~
+.DS_Store
+
+.cache
+.aligo
+alipan_redirect
