@@ -3,7 +3,7 @@ sync:
     {
       "source_dir": "/mnt/user/downloads/cloud/aliyun/emby",
       "dest_dir": "/mnt/user/downloads/link/aliyun",
-      "library_dir": "/data/aliyun",
+      "library_dir": "/cloud/aliyun/emby",
       "monitoring_mode": "compatibility"
     }
   ]
