@@ -1,0 +1,9 @@
+sync:
+  monitor_confs: [
+    {
+      "source_dir": "/mnt/user/downloads/cloud/aliyun/emby",
+      "dest_dir": "/mnt/user/downloads/link/aliyun",
+      "library_dir": "/data/aliyun",
+      "monitoring_mode": "compatibility"
+    }
+  ]

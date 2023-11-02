@@ -1,0 +1,5 @@
+PyYAML==6.0
+APScheduler~=3.10.1
+uvicorn~=0.22.0
+fastapi~=0.96.0
+watchdog~=3.0.0

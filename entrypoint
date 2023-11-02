@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# 更改 strm userid 和 groupid
+groupmod -o -g ${PGID} strm
+usermod -o -u ${PUID} strm
+# 更改文件权限
+chown -R strm:strm ${HOME}
+# 设置后端服务权限掩码
+umask ${UMASK}
+# 启动后端服务
+exec dumb-init gosu strm:strm python3 main.py
