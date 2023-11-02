@@ -36,7 +36,7 @@ class FileMonitorHandler(FileSystemEventHandler):
 
     def on_created(self, event):
         logger.info(f"目录监控created事件路径::: {event.src_path}")
-        self.file_change.event_handler(event=event, event_path=event.src_path)
+        self.file_change.event_handler(event=event, source_dir=self._watch_path, event_path=event.src_path)
 
     # def on_deleted(self, event):
     #     logger.info(f"目录监控deleted事件路径 src_path::: {event.src_path}")
@@ -46,7 +46,7 @@ class FileMonitorHandler(FileSystemEventHandler):
         logger.info(f"目录监控moved事件路径 src_path::: {event.src_path}")
         logger.info(f"目录监控moved事件路径 dest_path::: {event.dest_path}")
         logger.info("fast模式能触发，暂不处理")
-        # self.file_change.event_handler(event=event, event_path=event.dest_path)
+        # self.file_change.event_handler(event=event, source_dir=self._watch_path, event_path=event.dest_path)
 
 
 class FileChange:
@@ -99,10 +99,11 @@ class FileChange:
             observer.daemon = True
             observer.start()
 
-    def event_handler(self, event, event_path: str):
+    def event_handler(self, event, source_dir: str, event_path: str):
         """
         文件变动handler
         :param event:
+        :param source_dir:
         :param event_path:
         """
         # 回收站及隐藏的文件不处理
@@ -115,16 +116,11 @@ class FileChange:
 
         logger.info(f"event_type::: {event.event_type}")
 
-        # 获取变动路径对应原路径
-        for source_dir in list(self._dirconf.keys()):
-            if str(event_path).startswith(str(source_dir)):
-                logger.info(f"event_path {event_path} source_path {source_dir}")
-                if event.event_type == "created":
-                    self.event_handler_created(event, event_path, source_dir)
-                # if event.event_type == "deleted":
-                #     self.event_handler_deleted(event_path, source_dir)
-                # 只处理一遍
-                break
+        logger.info(f"event_path {event_path} source_path {source_dir}")
+        if event.event_type == "created":
+            self.event_handler_created(event, event_path, source_dir)
+        # if event.event_type == "deleted":
+        #     self.event_handler_deleted(event_path, source_dir)
 
     def event_handler_created(self, event, event_path: str, source_dir: str):
         try:
