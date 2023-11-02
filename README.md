@@ -22,10 +22,10 @@ sync:
 ```
 
 ```
-docker run -d --name alipan_strm \
+docker run -d --name library_strm \
     -v /mnt/user/downloads/:/mnt/user/downloads/ \
     -v /mnt/config.yaml:/mnt/config.yaml \
-    thsrite/alipan-strm:latest
+    thsrite/library-strm:latest
 ```
 
 启动服务等一会再……
