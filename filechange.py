@@ -171,6 +171,7 @@ class FileChange:
                         self.__create_strm_file(dest_file=dest_file,
                                                 dest_dir=dest_dir,
                                                 library_dir=library_dir,
+                                                source_file=event_path,
                                                 cloud_type=cloud_type,
                                                 cloud_path=cloud_path,
                                                 cloud_url=cloud_url)
@@ -217,7 +218,8 @@ class FileChange:
                 logger.error(f"删除空父目录失败: {e}")
 
     @staticmethod
-    def __create_strm_file(dest_file: str, dest_dir: str, library_dir: str, cloud_type: str = None,
+    def __create_strm_file(dest_file: str, dest_dir: str, source_file: str, library_dir: str = None,
+                           cloud_type: str = None,
                            cloud_path: str = None, cloud_url: str = None):
         """
         生成strm文件
@@ -242,7 +244,7 @@ class FileChange:
             # 云盘模式
             if cloud_type:
                 # 替换路径中的\为/
-                dest_file = dest_file.replace("\\", "/")
+                dest_file = source_file.replace("\\", "/")
                 dest_file = dest_file.replace(cloud_path, "")
                 # 对盘符之后的所有内容进行url转码
                 dest_file = urllib.parse.quote(dest_file, safe='')

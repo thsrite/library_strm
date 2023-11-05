@@ -11,7 +11,7 @@ from pathlib import Path
 logger = logging.getLogger()
 
 
-def create_strm_file(dest_file, dest_dir, library_dir, cloud_type=None, cloud_path=None, cloud_url=None):
+def create_strm_file(dest_file, dest_dir, source_file, library_dir, cloud_type=None, cloud_path=None, cloud_url=None):
     """
     生成strm文件
     :param dest_file:
@@ -32,7 +32,7 @@ def create_strm_file(dest_file, dest_dir, library_dir, cloud_type=None, cloud_pa
         # 云盘模式
         if cloud_type:
             # 替换路径中的\为/
-            dest_file = dest_file.replace("\\", "/")
+            dest_file = source_file.replace("\\", "/")
             dest_file = dest_file.replace(cloud_path, "")
             # 对盘符之后的所有内容进行url转码
             dest_file = urllib.parse.quote(dest_file, safe='')
@@ -101,6 +101,7 @@ def copy_files(source_dir, dest_dir, library_dir, cloud_type=None, cloud_path=No
                     # 创建.strm文件
                     create_strm_file(dest_file=dest_file,
                                      dest_dir=dest_dir,
+                                     source_file=source_file,
                                      library_dir=library_dir,
                                      cloud_type=cloud_type,
                                      cloud_path=cloud_path,
