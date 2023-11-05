@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+import urllib.parse
 
 import yaml
 import logging
@@ -10,7 +11,7 @@ from pathlib import Path
 logger = logging.getLogger()
 
 
-def create_strm_file(dest_file, dest_dir, library_dir):
+def create_strm_file(dest_file, dest_dir, library_dir, cloud_type=None, cloud_path=None, cloud_url=None):
     """
     生成strm文件
     :param dest_file:
@@ -26,29 +27,45 @@ def create_strm_file(dest_file, dest_dir, library_dir):
 
         # 构造.strm文件路径
         strm_path = os.path.join(dest_path, f"{os.path.splitext(video_name)[0]}.strm")
+        logger.info(f"替换前本地路径:::{dest_file}")
 
-        if os.path.exists(strm_path):
-            print(f"strm文件已存在，跳过处理::: {strm_path}")
-            return
+        # 云盘模式
+        if cloud_type:
+            # 替换路径中的\为/
+            dest_file = dest_file.replace("\\", "/")
+            dest_file = dest_file.replace(cloud_path, "")
+            # 对盘符之后的所有内容进行url转码
+            dest_file = urllib.parse.quote(dest_file, safe='')
+            if str(cloud_type) == "cd2":
+                # 将路径的开头盘符"/mnt/user/downloads"替换为"http://localhost:19798/static/http/localhost:19798/False/"
+                dest_file = f"http://{cloud_url}/static/http/{cloud_url}/False/{dest_file}"
+                logger.info(f"替换后cd2路径:::{dest_file}")
+            elif str(cloud_type) == "alist":
+                dest_file = f"http://{cloud_url}/d/{dest_file}"
+                logger.info(f"替换后alist路径:::{dest_file}")
+            else:
+                logger.error(f"云盘类型 {cloud_type} 错误")
+                return
+        else:
+            # 本地挂载路径转为emby路径
+            dest_file = dest_file.replace(dest_dir, library_dir)
+            logger.info(f"替换后emby容器内路径:::{dest_file}")
 
-        # 本地挂载路径转为emby路径
-        library_dir = dest_file.replace(dest_dir, library_dir)
-
-        print(f"dest_file 处理文件::: {dest_file}")
         print(f"video_name 文件名字::: {video_name}")
         print(f"dest_path parent 文件目录::: {dest_path}")
         print(f"strm_path strm路径::: {strm_path}")
-        print(f"emby_play_path emby播放地址::: {library_dir}")
+        print(f"emby_play_path emby播放地址::: {dest_file}")
 
         # 写入.strm文件
         with open(strm_path, "w") as f:
-            f.write(library_dir)
+            f.write(dest_file)
 
-        print(f"已写入 {strm_path}::: {library_dir}")
+        print(f"已写入 {strm_path}::: {dest_file}")
     except Exception as e:
         print(str(e))
 
-def copy_files(source_dir, dest_dir, library_dir):
+
+def copy_files(source_dir, dest_dir, library_dir, cloud_type=None, cloud_path=None, cloud_url=None):
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
 
@@ -82,7 +99,12 @@ def copy_files(source_dir, dest_dir, library_dir):
                     shutil.copy2(source_file, dest_file)
                 else:
                     # 创建.strm文件
-                    create_strm_file(dest_file, dest_dir, library_dir)
+                    create_strm_file(dest_file=dest_file,
+                                     dest_dir=dest_dir,
+                                     library_dir=library_dir,
+                                     cloud_type=cloud_type,
+                                     cloud_path=cloud_path,
+                                     cloud_url=cloud_url)
             else:
                 # 复制文件
                 print(f"复制其他文件到:::{dest_file}")
@@ -105,6 +127,9 @@ for monitor_conf in monitor_confs:
     source_dir = monitor_conf.get("source_dir")
     dest_dir = monitor_conf.get("dest_dir")
     library_dir = monitor_conf.get("library_dir")
+    cloud_type = monitor_conf.get("cloud_type")
+    cloud_path = monitor_conf.get("cloud_path")
+    cloud_url = monitor_conf.get("cloud_url")
 
     print(f"source::: {source_dir}")
     print(f"dest_dir::: {dest_dir}")
@@ -113,6 +138,6 @@ for monitor_conf in monitor_confs:
     print(f"开始初始化生成strm文件 {source_dir}")
 
     # 批量生成strm文件
-    copy_files(source_dir, dest_dir, library_dir)
+    copy_files(source_dir, dest_dir, library_dir, cloud_type, cloud_path, cloud_url)
 
     print(f"{source_dir} 初始化生成strm文件完成")

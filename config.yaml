@@ -1,9 +1,12 @@
 sync:
   monitor_confs: [
     {
+      "monitoring_mode": "compatibility",
       "source_dir": "/mnt/user/downloads/cloud/aliyun/emby",
       "dest_dir": "/mnt/user/downloads/link/aliyun",
       "library_dir": "/cloud/aliyun/emby",
-      "monitoring_mode": "compatibility"
+      "cloud_type": "cd2/alist/local",
+      "cloud_path": "/mnt/user/downloads/cloud",
+      "cloud_url": "192.168.31.103:19798",
     }
   ]

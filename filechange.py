@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import shutil
+import urllib.parse
 from pathlib import Path
 from typing import Any
 
@@ -53,6 +54,9 @@ class FileChange:
     _dirconf = {}
     _modeconf = {}
     _libraryconf = {}
+    _cloudtypeconf = {}
+    _cloudurlconf = {}
+    _cloudpathconf = {}
 
     def __init__(self):
         """
@@ -74,6 +78,9 @@ class FileChange:
             self._dirconf[monitor_conf.get("source_dir")] = monitor_conf.get("dest_dir")
             self._modeconf[monitor_conf.get("source_dir")] = monitor_conf.get("monitoring_mode")
             self._libraryconf[monitor_conf.get("source_dir")] = monitor_conf.get("library_dir")
+            self._cloudtypeconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_type")
+            self._cloudpathconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_path")
+            self._cloudurlconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_url")
 
     def start(self):
         """
@@ -129,6 +136,12 @@ class FileChange:
             dest_dir = self._dirconf.get(source_dir)
             # 媒体库容器内挂载路径
             library_dir = self._libraryconf.get(source_dir)
+            # 云服务类型
+            cloud_type = self._cloudtypeconf.get(source_dir)
+            # 云服务挂载本地跟路径
+            cloud_path = self._cloudpathconf.get(source_dir)
+            # 云服务地址
+            cloud_url = self._cloudurlconf.get(source_dir)
             # 文件夹同步创建
             if event.is_directory:
                 target_path = event_path.replace(source_dir, dest_dir)
@@ -157,7 +170,10 @@ class FileChange:
                         # 创建.strm文件
                         self.__create_strm_file(dest_file=dest_file,
                                                 dest_dir=dest_dir,
-                                                library_dir=library_dir)
+                                                library_dir=library_dir,
+                                                cloud_type=cloud_type,
+                                                cloud_path=cloud_path,
+                                                cloud_url=cloud_url)
                 else:
                     # 其他nfo、jpg等复制文件
                     shutil.copy2(event_path, dest_file)
@@ -201,7 +217,8 @@ class FileChange:
                 logger.error(f"删除空父目录失败: {e}")
 
     @staticmethod
-    def __create_strm_file(dest_file: str, dest_dir: str, library_dir: str):
+    def __create_strm_file(dest_file: str, dest_dir: str, library_dir: str, cloud_type: str = None,
+                           cloud_path: str = None, cloud_url: str = None):
         """
         生成strm文件
         :param library_dir:
@@ -220,12 +237,29 @@ class FileChange:
 
             # 构造.strm文件路径
             strm_path = os.path.join(dest_path, f"{os.path.splitext(video_name)[0]}.strm")
-
             logger.info(f"替换前本地路径:::{dest_file}")
 
-            # 本地挂载路径转为emby路径
-            dest_file = dest_file.replace(dest_dir, library_dir)
-            logger.info(f"替换后emby容器内路径:::{dest_file}")
+            # 云盘模式
+            if cloud_type:
+                # 替换路径中的\为/
+                dest_file = dest_file.replace("\\", "/")
+                dest_file = dest_file.replace(cloud_path, "")
+                # 对盘符之后的所有内容进行url转码
+                dest_file = urllib.parse.quote(dest_file, safe='')
+                if str(cloud_type) == "cd2":
+                    # 将路径的开头盘符"/mnt/user/downloads"替换为"http://localhost:19798/static/http/localhost:19798/False/"
+                    dest_file = f"http://{cloud_url}/static/http/{cloud_url}/False/{dest_file}"
+                    logger.info(f"替换后cd2路径:::{dest_file}")
+                elif str(cloud_type) == "alist":
+                    dest_file = f"http://{cloud_url}/d/{dest_file}"
+                    logger.info(f"替换后alist路径:::{dest_file}")
+                else:
+                    logger.error(f"云盘类型 {cloud_type} 错误")
+                    return
+            else:
+                # 本地挂载路径转为emby路径
+                dest_file = dest_file.replace(dest_dir, library_dir)
+                logger.info(f"替换后emby容器内路径:::{dest_file}")
 
             # 写入.strm文件
             with open(strm_path, 'w') as f:
