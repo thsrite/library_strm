@@ -29,6 +29,10 @@ def create_strm_file(dest_file, dest_dir, source_file, library_dir, cloud_type=N
         strm_path = os.path.join(dest_path, f"{os.path.splitext(video_name)[0]}.strm")
         logger.info(f"替换前本地路径:::{dest_file}")
 
+        if os.path.exists(strm_path):
+            print(f"strm文件已存在，跳过处理::: {strm_path}")
+            return
+
         # 云盘模式
         if cloud_type:
             # 替换路径中的\为/
@@ -75,6 +79,12 @@ def copy_files(source_dir, dest_dir, library_dir, cloud_type=None, cloud_path=No
         # 如果遇到名为'extrafanart'的文件夹，则跳过处理该文件夹，继续处理其他文件夹
         if "extrafanart" in dirs:
             dirs.remove("extrafanart")
+        if "BDMV" in dirs:
+            print(f"源文件夹是原盘文件夹,跳过处理::: {source_dir}")
+            dirs.remove("BDMV")
+        if "CERTIFICATE" in dirs:
+            print(f"源文件夹是原盘文件夹,跳过处理::: {source_dir}")
+            dirs.remove("CERTIFICATE")
 
         for file in files:
             source_file = os.path.join(root, file)
@@ -109,7 +119,10 @@ def copy_files(source_dir, dest_dir, library_dir, cloud_type=None, cloud_path=No
             else:
                 # 复制文件
                 print(f"复制其他文件到:::{dest_file}")
-                shutil.copy2(source_file, dest_file)
+                try:
+                    shutil.copy2(source_file, dest_file)
+                except OSError as e:
+                    print(f"无法复制文件 {source_file} 到 {dest_file}. 错误: {e}")
 
 
 filepath = os.path.join("/mnt", "config.yaml")

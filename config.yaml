@@ -8,5 +8,7 @@ sync:
       "cloud_type": "cd2/alist/local",
       "cloud_path": "/mnt/user/downloads/cloud",
       "cloud_url": "192.168.31.103:19798",
+      "copy_img": True,
+      "create_strm": True
     }
   ]

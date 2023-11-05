@@ -10,6 +10,8 @@ library_dir:媒体库容器内挂载网盘路径（非strm路径！！意味着�
 cloud_type:cd2/alist
 cloud_path:cd2/alist挂载本地跟路径（不带最后的/）
 cloud_url:cd2/alist服务地址（ip:port）
+copy_img:True/False  是否开启复制图片
+create_strm:True/False  是否开启strm链接,否的的话媒体也会复制
 ```
 
 ```
