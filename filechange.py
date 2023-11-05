@@ -57,6 +57,8 @@ class FileChange:
     _cloudtypeconf = {}
     _cloudurlconf = {}
     _cloudpathconf = {}
+    _imgconf = {}
+    _strmconf = {}
 
     def __init__(self):
         """
@@ -81,6 +83,8 @@ class FileChange:
             self._cloudtypeconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_type")
             self._cloudpathconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_path")
             self._cloudurlconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_url")
+            self._imgconf[monitor_conf.get("source_dir")] = monitor_conf.get("copy_img")
+            self._strmconf[monitor_conf.get("source_dir")] = monitor_conf.get("create_strm")
 
     def start(self):
         """
@@ -121,6 +125,11 @@ class FileChange:
             logger.info(f"{event_path} 是回收站或隐藏的文件，跳过处理")
             return
 
+        # 原盘文件夹不处理
+        if (event_path.find("/BDMV") != -1
+                or event_path.find("/CERTIFICATE") != -1):
+            logger.info(f"{event_path} 是原盘文件夹，跳过处理")
+            return
         logger.info(f"event_type::: {event.event_type}")
 
         logger.info(f"event_path {event_path} source_path {source_dir}")
@@ -142,6 +151,9 @@ class FileChange:
             cloud_path = self._cloudpathconf.get(source_dir)
             # 云服务地址
             cloud_url = self._cloudurlconf.get(source_dir)
+            img_conf = self._imgconf.get(source_dir)
+            # 是否创建strm文件
+            strm_conf = self._strmconf.get(source_dir)
             # 文件夹同步创建
             if event.is_directory:
                 target_path = event_path.replace(source_dir, dest_dir)
@@ -161,6 +173,10 @@ class FileChange:
                 # 视频文件创建.strm文件
                 video_formats = (
                     '.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.webm', '.iso', '.mpg')
+                # 图片文件识别
+                img_formats = ('.jpg', '.png', '.jpeg', '.bmp', '.gif', '.webp')
+                # 其他文件识别
+                nfo_formats = ('.nfo', '.xml', '.txt', '.srt', '.ass', '.sub', '.smi', '.ssa')
                 if event_path.lower().endswith(video_formats):
                     # 如果视频文件小于1MB，则直接复制，不创建.strm文件
                     if os.path.getsize(event_path) < 1024 * 1024:
@@ -175,10 +191,23 @@ class FileChange:
                                                 cloud_type=cloud_type,
                                                 cloud_path=cloud_path,
                                                 cloud_url=cloud_url)
-                else:
-                    # 其他nfo、jpg等复制文件
-                    shutil.copy2(event_path, dest_file)
-                    logger.info(f"复制其他文件 {event_path} 到 {dest_file}")
+                elif event_path.lower().endswith(img_formats):
+                    if not img_conf:
+                        logger.info(f"图片处理未开，跳过处理: {event_path} ")
+                        return
+                    # 图片文件复制
+                    if not os.path.exists(dest_file):
+                        shutil.copy2(event_path, dest_file)
+                        logger.info(f"复制图片文件 {event_path} 到 {dest_file}")
+                    else:
+                        logger.info(f"目标文件 {dest_file} 已存在，跳过处理")
+                elif event_path.lower().endswith(nfo_formats):
+                    # 元数据、字幕等文件复制
+                    if not os.path.exists(dest_file):
+                        shutil.copy2(event_path, dest_file)
+                        logger.info(f"复制其他文件 {event_path} 到 {dest_file}")
+                    else:
+                        logger.info(f"目标文件 {dest_file} 已存在，跳过处理")
 
         except Exception as e:
             logger.error(f"event_handler_created error: {e}")
