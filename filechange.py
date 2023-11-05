@@ -83,8 +83,8 @@ class FileChange:
             self._cloudtypeconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_type")
             self._cloudpathconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_path")
             self._cloudurlconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_url")
-            self._imgconf[monitor_conf.get("source_dir")] = monitor_conf.get("copy_img")
-            self._strmconf[monitor_conf.get("source_dir")] = monitor_conf.get("create_strm")
+            self._imgconf[monitor_conf.get("source_dir")] = monitor_conf.get("copy_img") or True
+            self._strmconf[monitor_conf.get("source_dir")] = monitor_conf.get("create_strm") or True
 
     def start(self):
         """
