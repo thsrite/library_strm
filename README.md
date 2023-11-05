@@ -1,21 +1,33 @@
-# 支持多路径目录监控配置                                                                       
+# 支持多路径目录监控配置
 
 ```
-source_dir:网盘挂载本地资源路径（监控路径）                                            
-dest_dir:strm保存路径（转移路径）                                                    
-library_dir:媒体库容器内挂载网盘路径（非strm路径！！意味着要把挂载到网盘的本地路径映射到媒体服务器中）                                                    
 compatibility:                                                                  
     fast:性能模式，内部处理系统操作类型选择最优解;                                       
     compatibility:兼容模式，目录同步性能降低且NAS不能休眠，但可以兼容挂载的远程共享目录如SMB   
+source_dir:网盘挂载本地资源路径（监控路径）                                            
+dest_dir:strm保存路径（转移路径）                                                    
+library_dir:媒体库容器内挂载网盘路径（非strm路径！！意味着要把挂载到网盘的本地路径映射到媒体服务器中）                                                    
+cloud_type:cd2/alist
+cloud_path:cd2/alist挂载本地跟路径（不带最后的/）
+cloud_url:cd2/alist服务地址（ip:port）
 ```
+
 ```
 sync:
   monitor_confs: [
     {
+      "monitoring_mode": "compatibility",
       "source_dir": "/mnt/user/downloads/cloud/aliyun/emby",
       "dest_dir": "/mnt/user/downloads/link/aliyun",
-      "library_dir": "/cloud/aliyun/emby",
-      "monitoring_mode": "compatibility"
+      "library_dir": "/cloud/aliyun/emby"
+    },
+    {
+      "monitoring_mode": "compatibility",
+      "source_dir": "/mnt/user/downloads/cloud/aliyun/emby",
+      "dest_dir": "/mnt/user/downloads/link/aliyun",
+      "cloud_type": "cd2",
+      "cloud_path": "/mnt/user/downloads/cloud",
+      "cloud_url": "192.168.31.103:19798"
     }
   ]
 
