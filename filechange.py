@@ -179,7 +179,7 @@ class FileChange:
                 nfo_formats = ('.nfo', '.xml', '.txt', '.srt', '.ass', '.sub', '.smi', '.ssa')
                 if event_path.lower().endswith(video_formats):
                     # 如果视频文件小于1MB，则直接复制，不创建.strm文件
-                    if os.path.getsize(event_path) < 1024 * 1024:
+                    if os.path.getsize(event_path) < 1024 * 1024 or not strm_conf:
                         shutil.copy2(event_path, dest_file)
                         logger.info(f"复制视频文件 {event_path} 到 {dest_file}")
                     else:
