@@ -6,7 +6,6 @@
 [![docker pulls][docker-pulls-image]][docker-pulls-url]
 [![docker stars][docker-stars-image]][docker-stars-url]
 [![docker image size][docker-image-size-image]][docker-image-size-url]
-![repo size][repo-size-image]
 
 [Github-image]: https://img.shields.io/static/v1?label=Github&message=library_strm&color=brightgreen
 [Github-url]: https://github.com/thsrite/library_strm
@@ -20,7 +19,7 @@
 [docker-stars-url]: https://hub.docker.com/r/thsrite/library-strm
 [docker-image-size-image]: https://img.shields.io/docker/image-size/thsrite/library-strm?style=flat
 [docker-image-size-url]: https://hub.docker.com/r/thsrite/library-strm
-[repo-size-image]: https://img.shields.io/github/repo-size/qd-today/qd
+
 
 ```
 相关参数
