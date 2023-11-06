@@ -6,6 +6,7 @@
 [![docker pulls][docker-pulls-image]][docker-pulls-url]
 [![docker stars][docker-stars-image]][docker-stars-url]
 [![docker image size][docker-image-size-image]][docker-image-size-url]
+[![Platform](https://img.shields.io/badge/platform-amd64/arm64-pink?style=plastic)](https://hub.docker.com/r/thsrite/library-strm)
 
 [Github-image]: https://img.shields.io/static/v1?label=Github&message=library_strm&color=brightgreen
 [Github-url]: https://github.com/thsrite/library_strm
