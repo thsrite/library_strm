@@ -1,5 +1,27 @@
 # 支持多路径目录监控配置
 
+[![Github][Github-image]][Github-url]
+[![commit activity][commit-activity-image]][commit-activity-url]
+[![docker version][docker-version-image]][docker-version-url]
+[![docker pulls][docker-pulls-image]][docker-pulls-url]
+[![docker stars][docker-stars-image]][docker-stars-url]
+[![docker image size][docker-image-size-image]][docker-image-size-url]
+![repo size][repo-size-image]
+
+[Github-image]: https://img.shields.io/static/v1?label=Github&message=library_strm&color=brightgreen
+[Github-url]: https://github.com/thsrite/library_strm
+[commit-activity-image]: https://img.shields.io/github/commit-activity/m/thsrite/library_strm
+[commit-activity-url]: https://github.com/thsrite/library_strm
+[docker-version-image]: https://img.shields.io/docker/v/thsrite/library-strm?style=flat
+[docker-version-url]: https://hub.docker.com/r/thsrite/library-strm/tags?page=1&ordering=last_updated
+[docker-pulls-image]: https://img.shields.io/docker/pulls/thsrite/library-strm?style=flat
+[docker-pulls-url]: https://hub.docker.com/r/thsrite/library-strm
+[docker-stars-image]: https://img.shields.io/docker/stars/thsrite/library-strm?style=flat
+[docker-stars-url]: https://hub.docker.com/r/thsrite/library-strm
+[docker-image-size-image]: https://img.shields.io/docker/image-size/thsrite/library-strm?style=flat
+[docker-image-size-url]: https://hub.docker.com/r/thsrite/library-strm
+[repo-size-image]: https://img.shields.io/github/repo-size/qd-today/qd
+
 ```
 相关参数
 compatibility: fast:性能模式，内部处理系统操作类型选择最优解; compatibility:兼容模式，目录同步性能降低且NAS不能休眠，但可以兼容挂载的远程共享目录如SMB   
