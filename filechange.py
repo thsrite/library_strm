@@ -32,8 +32,8 @@ class FileMonitorHandler(FileSystemEventHandler):
         self.file_change = file_change
 
     def on_any_event(self, event):
-        logger.info(f"目录监控event_type::: {event.event_type}")
-        logger.info(f"目录监控on_any_event事件路径::: {event.src_path}")
+        logger.debug(f"目录监控event_type::: {event.event_type}")
+        logger.debug(f"目录监控on_any_event事件路径::: {event.src_path}")
 
     def on_created(self, event):
         logger.info(f"目录监控created事件路径::: {event.src_path}")
@@ -83,8 +83,8 @@ class FileChange:
             self._cloudtypeconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_type")
             self._cloudpathconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_path")
             self._cloudurlconf[monitor_conf.get("source_dir")] = monitor_conf.get("cloud_url")
-            self._imgconf[monitor_conf.get("source_dir")] = monitor_conf.get("copy_img") or True
-            self._strmconf[monitor_conf.get("source_dir")] = monitor_conf.get("create_strm") or True
+            self._imgconf[monitor_conf.get("source_dir")] = monitor_conf.get("copy_img", True)
+            self._strmconf[monitor_conf.get("source_dir")] = monitor_conf.get("create_strm", True)
 
     def start(self):
         """
@@ -151,6 +151,7 @@ class FileChange:
             cloud_path = self._cloudpathconf.get(source_dir)
             # 云服务地址
             cloud_url = self._cloudurlconf.get(source_dir)
+            # 是否处理图片
             img_conf = self._imgconf.get(source_dir)
             # 是否创建strm文件
             strm_conf = self._strmconf.get(source_dir)
@@ -178,8 +179,11 @@ class FileChange:
                 # 其他文件识别
                 nfo_formats = ('.nfo', '.xml', '.txt', '.srt', '.ass', '.sub', '.smi', '.ssa')
                 if event_path.lower().endswith(video_formats):
+                    if not strm_conf:
+                        print(f"视频strm处理未开，复制视频文件到: {dest_file} ")
+                        shutil.copy2(event_path, dest_file)
                     # 如果视频文件小于1MB，则直接复制，不创建.strm文件
-                    if os.path.getsize(event_path) < 1024 * 1024 or not strm_conf:
+                    elif os.path.getsize(event_path) < 1024 * 1024:
                         shutil.copy2(event_path, dest_file)
                         logger.info(f"复制视频文件 {event_path} 到 {dest_file}")
                     else:

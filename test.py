@@ -69,12 +69,14 @@ def create_strm_file(dest_file, dest_dir, source_file, library_dir, cloud_type=N
         print(str(e))
 
 
-def copy_files(source_dir, dest_dir, library_dir, cloud_type=None, cloud_path=None, cloud_url=None):
+def copy_files(source_dir, dest_dir, library_dir, cloud_type=None, cloud_path=None, cloud_url=None, img_conf=True, strm_conf=True):
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
-
     video_formats = ('.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.webm', '.iso', '.mpg')
-
+    # 图片文件识别
+    img_formats = ('.jpg', '.png', '.jpeg', '.bmp', '.gif', '.webp')
+    # 其他文件识别
+    nfo_formats = ('.nfo', '.xml', '.txt', '.srt', '.ass', '.sub', '.smi', '.ssa')
     for root, dirs, files in os.walk(source_dir):
         # 如果遇到名为'extrafanart'的文件夹，则跳过处理该文件夹，继续处理其他文件夹
         if "extrafanart" in dirs:
@@ -87,43 +89,53 @@ def copy_files(source_dir, dest_dir, library_dir, cloud_type=None, cloud_path=No
             dirs.remove("CERTIFICATE")
 
         for file in files:
-            source_file = os.path.join(root, file)
-            print(f"处理源文件::: {source_file}")
+            try:
+                source_file = os.path.join(root, file)
+                print(f"处理源文件::: {source_file}")
 
-            dest_file = os.path.join(dest_dir, os.path.relpath(source_file, source_dir))
-            print(f"开始生成目标文件::: {dest_file}")
+                dest_file = os.path.join(dest_dir, os.path.relpath(source_file, source_dir))
+                print(f"开始生成目标文件::: {dest_file}")
 
-            # 创建目标目录中缺少的文件夹
-            if not os.path.exists(Path(dest_file).parent):
-                os.makedirs(Path(dest_file).parent)
+                # 创建目标目录中缺少的文件夹
+                if not os.path.exists(Path(dest_file).parent):
+                    os.makedirs(Path(dest_file).parent)
 
-            # 如果目标文件已存在，跳过处理
-            if os.path.exists(dest_file):
-                print(f"文件已存在，跳过处理::: {dest_file}")
-                continue
+                # 如果目标文件已存在，跳过处理
+                if os.path.exists(dest_file):
+                    print(f"文件已存在，跳过处理::: {dest_file}")
+                    continue
 
-            if file.lower().endswith(video_formats):
-                # 如果视频文件小于1MB，则直接复制，不创建.strm文件
-                if os.path.getsize(source_file) < 1024 * 1024:
-                    print(f"视频文件小于1MB的视频文件到:::{dest_file}")
+                if file.lower().endswith(video_formats):
+                    if not strm_conf:
+                        print(f"视频strm处理未开，复制视频文件到: {dest_file} ")
+                        shutil.copy2(source_file, dest_file)
+                    # 如果视频文件小于1MB，则直接复制，不创建.strm文件
+                    elif os.path.getsize(source_file) < 1024 * 1024 :
+                        print(f"视频文件小于1MB的视频文件到:::{dest_file}")
+                        shutil.copy2(source_file, dest_file)
+                    else:
+                        # 创建.strm文件
+                        create_strm_file(dest_file=dest_file,
+                                        dest_dir=dest_dir,
+                                        source_file=source_file,
+                                        library_dir=library_dir,
+                                        cloud_type=cloud_type,
+                                        cloud_path=cloud_path,
+                                        cloud_url=cloud_url)
+                elif file.lower().endswith(img_formats):
+                    if not img_conf:
+                        print(f"图片处理未开，跳过处理: {source_file} ")
+                        return
+                    # 图片文件复制
                     shutil.copy2(source_file, dest_file)
-                else:
-                    # 创建.strm文件
-                    create_strm_file(dest_file=dest_file,
-                                     dest_dir=dest_dir,
-                                     source_file=source_file,
-                                     library_dir=library_dir,
-                                     cloud_type=cloud_type,
-                                     cloud_path=cloud_path,
-                                     cloud_url=cloud_url)
-            else:
-                # 复制文件
-                print(f"复制其他文件到:::{dest_file}")
-                try:
+                    print(f"复制图片文件 {source_file} 到 {dest_file}")
+                elif file.lower().endswith(nfo_formats):
+                    # 元数据、字幕等文件复制
                     shutil.copy2(source_file, dest_file)
-                except OSError as e:
-                    print(f"无法复制文件 {source_file} 到 {dest_file}. 错误: {e}")
-
+                    print(f"复制其他文件 {source_file} 到 {dest_file}")
+            except Exception as e:
+                logger.error(f"copy_files error: {e}")
+                print(str(e))
 
 filepath = os.path.join("/mnt", "config.yaml")
 
@@ -133,7 +145,6 @@ with open(filepath, "r") as f:  # 用with读取文件更好
 monitor_confs = configs["sync"]["monitor_confs"]
 if not isinstance(monitor_confs, list):
     monitor_confs = [monitor_confs]
-
 # 存储目录监控配置
 for monitor_conf in monitor_confs:
     if not isinstance(monitor_conf, dict):
@@ -144,14 +155,16 @@ for monitor_conf in monitor_confs:
     cloud_type = monitor_conf.get("cloud_type")
     cloud_path = monitor_conf.get("cloud_path")
     cloud_url = monitor_conf.get("cloud_url")
+    img_conf = monitor_conf.get("copy_img")
+    strm_conf = monitor_conf.get("create_strm")
 
     print(f"source::: {source_dir}")
     print(f"dest_dir::: {dest_dir}")
     print(f"library_dir::: {library_dir}")
 
-    print(f"开始初始化生成strm文件 {source_dir}")
+    print(f"开始初始化处理文件 {source_dir}")
 
     # 批量生成strm文件
-    copy_files(source_dir, dest_dir, library_dir, cloud_type, cloud_path, cloud_url)
+    copy_files(source_dir, dest_dir, library_dir, cloud_type=cloud_type, cloud_path=cloud_path, cloud_url=cloud_url, img_conf=img_conf, strm_conf=strm_conf)
 
-    print(f"{source_dir} 初始化生成strm文件完成")
+    print(f"{source_dir} 初始化处理文件完成")
