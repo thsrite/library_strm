@@ -72,7 +72,7 @@ def create_strm_file(dest_file, dest_dir, source_file, library_dir, cloud_type=N
 def copy_files(source_dir, dest_dir, library_dir, cloud_type=None, cloud_path=None, cloud_url=None, img_conf=True, strm_conf=True):
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
-    video_formats = ('.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.webm', '.iso', '.mpg')
+    video_formats = ('.mp4', '.avi', '.rmvb', '.wmv', '.mov', '.mkv', '.flv', '.ts', '.webm', '.iso', '.mpg', '.m2ts')
     # 图片文件识别
     img_formats = ('.jpg', '.png', '.jpeg', '.bmp', '.gif', '.webp')
     # 其他文件识别
