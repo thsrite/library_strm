@@ -34,8 +34,8 @@ def list_files(directory: Path, extensions: list, min_filesize: int = 0) -> List
 
 # nas上strm视频根路径  /mnt/user/downloads/link/aliyun/tvshow/爸爸去哪儿/Season 5/14.特别版.strm
 source_path = "/mnt/user/downloads/link/aliyun"
-# 云盘源文件挂载本地后 挂载进媒体服务器的路径，与上方对应   /cloud/CloudDrive/aliyun/emby/tvshow/爸爸去哪儿/Season 5/14.特别版.mp4
-library_path = "/cloud/CloudDrive/aliyun/emby"
+# 云盘源文件挂载本地后 挂载进媒体服务器的路径，与上方对应   /mount/cloud/aliyun/emby/tvshow/爸爸去哪儿/Season 5/14.特别版.mp4
+library_path = "/mount/cloud/aliyun/emby"
 
 files = list_files(Path(source_path), ['.strm'])
 
